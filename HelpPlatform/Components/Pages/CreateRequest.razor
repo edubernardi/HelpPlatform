@@ -1,0 +1,71 @@
+﻿@page "/createrequest"
+
+@using HelpPlatform.Data
+@using HelpPlatform.Models
+@using Microsoft.EntityFrameworkCore
+@inject BlazorDbContext DbContext
+
+
+<h3>Create a new request</h3>
+
+<EditForm Model="@request" OnSubmit="ValidateData" FormName="CreateRequest">
+    <label>
+        Resource
+        <InputText @bind-Value=request.Resource ></InputText>
+    </label>
+    <br />
+    <label>
+        Description
+        <InputText @bind-Value=request.Description ></InputText>
+    </label>
+    <br />
+    <br />
+    <input type="submit" class="btn btn-primary" value="Save" />
+    <div>@Message</div>
+</EditForm>
+
+@code {
+    [Parameter] public EventCallback OnItemAdded { get; set; }
+
+    private string Message = String.Empty;
+
+    [SupplyParameterFromForm]
+    private DonationRequest request { get; set; } = new();
+
+    private async Task ValidateData(EditContext editContext)
+    {
+        if (request.Resource == "")
+    {
+            Message = "Recurso inválido!";
+            return;
+        }
+
+        if (request.Description == "")
+        {
+            Message = "Descrição inválida!";
+            return;
+        }
+
+        request.Status = "Aguardando";
+
+        // Data is valid
+        // Add the new item to the database context
+        DbContext.DonationRequests.Add(request);
+
+        // Save changes to the database
+        await DbContext.SaveChangesAsync();
+
+        Message = "Mudanças salvas!";
+
+        request = new();
+
+        await OnItemAdded.InvokeAsync();
+    }
+}
+
+<script>
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+</script>
+

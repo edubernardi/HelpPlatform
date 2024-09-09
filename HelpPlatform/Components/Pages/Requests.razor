@@ -1,0 +1,78 @@
+﻿@page "/requests"
+@rendermode InteractiveServer
+
+@using HelpPlatform.Data
+@using HelpPlatform.Models
+@using Microsoft.EntityFrameworkCore
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject BlazorDbContext DbContext
+
+<style>
+    .container {
+        display: flex;
+        justify-content: 10px;
+    }
+
+    .box {
+        width: 100%;
+        padding-right: 15px;
+    }
+</style>
+
+@if (requests == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="box">
+            <h3>Requests</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Resource</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in requests)
+                    {
+                        <tr>
+                            <td>@request.Resource</td>
+                            <td>@request.Description</td>
+                            <td>@request.Status</td>
+                            <td><button class="btn btn-light">Atender</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <CreateRequest OnItemAdded="HandleItemAdded"/>
+        </div>
+    </div>
+}
+
+@code {
+    private List<DonationRequest> requests = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //requests = await DbContext.DonationRequests.ToListAsync();
+        List<DonationRequest> donationRequests = await HttpClient.GetFromJsonAsync<List<DonationRequest>>(NavigationManager.BaseUri + "donationrequests");
+        requests = donationRequests;
+
+    }
+
+
+    private async Task HandleItemAdded()
+    {
+        List<DonationRequest> donationRequests = await HttpClient.GetFromJsonAsync<List<DonationRequest>>(NavigationManager.BaseUri + "donationrequests");
+        requests = donationRequests;
+        //requests = DbContext.DonationRequests.ToList();
+    }
+    
+}
