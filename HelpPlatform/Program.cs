@@ -38,7 +38,6 @@ app.MapRazorComponents<App>()
 app.UseRouting();
 app.UseAntiforgery();
 app.MapRazorPages();
-app.MapBlazorHub();
 app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
